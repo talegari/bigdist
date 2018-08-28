@@ -1,0 +1,20 @@
+Package: bigdist
+Type: Package
+Title: Store Distance Matrices on Disk
+Version: 0.1.0
+Authors@R: person("KS", "Srikanth", email = "sri.teach@gmail.com", role = c("aut", "cre"))
+Description: Utilities to compute large distances matrices exceeding the RAM capacity and store distance matrices on disk as file-backed matrices.
+URL: https://github.com/talegari/bigdist
+BugReports: https://github.com/talegari/bigdist/issues
+Imports:
+    assertthat (>= 0.2.0),
+    bigstatsr (>= 0.6.2),
+    proxy (>= 0.4.21),
+    parallel,
+Depends:
+    R (>= 3.4.0)
+Suggests:
+    stats,
+License: GPL-3
+Encoding: UTF-8
+RoxygenNote: 6.0.1
