@@ -1,69 +1,112 @@
-#' @name dist
-#' @title Create a distance matrix on disk
+#' @name bigdist
+#' @title Read or Create a distance matrix on disk
 #' @description Computes distances via \code{\link[proxy]{dist}} and saves then
-#'   as file-backed matrix using \pkg{bigstatsr} package. Unix based systems can
-#'   use the fork based parallelism for faster computation with some tradeoff in
-#'   memory usage. The distances are written in chunks to keep the memory usage
-#'   at bay.
-#' @param mat Numeric matrix
-#' @param method See method argument of \code{\link[proxy]{dist}}
-#' @param file Name of the backing file to be created
-#' @param nproc Number of parallel processes via forking
-#' @return An object of class 'bigdist'
+#'   as file-backed matrix(FBM) using \pkg{bigstatsr} package or connects
+#'   existing FBM backup file on disk.
+#' @param mat Numeric matrix. When missing, attempts to connect to existing
+#'   backup file.
+#' @param file Name of the backing file to be created or an existing backup
+#'   file. Do not include trailing ".bk". See details for the backup file
+#'   format.
+#' @param method See method argument of \code{\link[proxy]{dist}}. This ignored
+#'   when mat is missing.
+#' @param type Storage type of FBM. See \code{\link[bigstatsr]{FBM}}. This
+#'   ignored when mat is missing.
+#' @param nproc Number of parallel processes via forking. See details. This
+#'   ignored when mat is missing.
+#' @return An object of class 'bigdist'.
+#' @details bigdist class is a list where the key 'fbm' holds the FBM
+#'   connection. The filename format is of the form <somename>_<size>_<type>.bk
+#'   where size is the number of observations
 #' @examples
-#' dist_iris <- stats::dist(iris[, 1:4])
-#' bigd <- dist(as.matrix(iris[, 1:4]), file = "iris_test")
-#' all.equal(as.numeric(as.matrix(dist_iris)), as.numeric(bigd$fbm[]))
-#' file.remove("iris_test.bk")
+#' set.seed(1)
+#' amat <- matrix(rnorm(1e4), ncol = 10)
+#' temp <- bigdist(mat = amat, file = "~/somefile")
+#' temp
+#' temp$fbm[1, 2]
+#'
+#' temp2 <- bigdist(file = "~/somefile_1000_float")
+#' temp2
+#' temp2$fbm[1,2]
+#' unlink("~/somefile_1000_float.bk")
 #' @export
+bigdist <- function(mat
+                    , file
+                    , method = "euclidean"
+                    , type   = "float"
+                    , nproc  = 1
+                    ){
+  # assertions ----
+  what <- ifelse(missing(mat), "read", "write")
 
-dist <- function(mat
-                 , method = "euclidean"
-                 , file
-                 , nproc = 1
-                 ){
+  if(what == "write"){
+    assertthat::assert_that(is.matrix(mat) && is.numeric(mat))
+    file <- suppressWarnings(normalizePath(file))
+    assertthat::assert_that(!file.exists(paste0(file, ".bk")))
+    assertthat::assert_that(assertthat::is.writeable(dirname(file)))
+    assertthat::assert_that(assertthat::is.string(type))
+    assertthat::assert_that(type %in% c("integer", "float", "double"))
+    assertthat::assert_that(assertthat::is.count(nproc))
+  }
 
-  begin_time <- Sys.time()
+  if(what == "read"){
+    assertthat::assert_that(file.exists(paste0(file, ".bk")))
+    assertthat::assert_that(assertthat::is.readable(paste0(file, ".bk")))
 
-  assertthat::assert_that(is.matrix(mat) && is.numeric(mat))
-  file <- suppressWarnings(normalizePath(file))
-  assertthat::assert_that(!file.exists(paste0(file, ".bk")) && assertthat::is.writeable(dirname(file)))
-  assertthat::assert_that(assertthat::is.count(nproc))
+    filenameSplit <- strsplit(file, "_")[[1]]
+    size <- suppressWarnings(as.integer(utils::tail(filenameSplit, 2)[1]))
+    type <- utils::tail(filenameSplit, 1)
+    assertthat::assert_that(
+      !is.na(size) && type %in% c("integer", "float", "double")
+      , msg = "bigdist backup file name does not natch the expected format: <filename>_<size>_<type>.bk"
+      )
+  }
 
-  size <- nrow(mat)
+  # create a FBM ----
+  if(what == "write"){
+    size    <- nrow(mat)
+    distmat <- bigstatsr::FBM(nrow          = size
+                              , ncol        = size
+                              , type        = type
+                              , backingfile = paste(file, size, type, sep = "_")
+                              , create_bk   = TRUE
+                              )
 
-  # create a FBM
-  distmat <- bigstatsr::FBM(nrow           = size
-                             , ncol        = size
-                             , type        = "double"
-                             , backingfile = file
-                             , create_bk   = TRUE
-                             )
+    filename <- paste0(paste(file, size, type, sep = "_"), ".bk")
+    message("----")
+    message(paste0("Location: ", filename))
+    message(paste0("Size on disk: "
+                   , round(file.size(filename)/2^30, 2)
+                   , " GB"
+                   )
+            )
+    message("Computing distances ... ")
 
-  message(paste0("Location: ", paste0(file, ".bk")))
-  message(paste0("Size on disk: "
-                 , round(file.size(paste0(file, ".bk"))/2^30, 2)
-                 , " GB"
-                 )
-          )
-  message("Computing distances ... ", appendLF = FALSE)
+    # fill FBM in a loop
+    pbmcapply::pbmclapply(1:(size - 1)
+                         , function(i){
+                           dists                    <- distIndex(i, mat, method, size)
+                           distmat[i, (i + 1):size] <- dists
+                           distmat[(i + 1):size, i] <- dists
 
-  # fill FBM on a loop
-  parallel::mclapply(1:(size - 1)
-                     , function(i){
-                        dists                    <- distIndex(i, mat, method, size)
-                        distmat[i, (i + 1):size] <- dists
-                        distmat[(i + 1):size, i] <- dists
+                           return(NULL)
+                         }
+                         , mc.cores       = nproc
+                         , mc.preschedule = FALSE
+                         )
+    invisible(gc())
+    message("Completed!")
+    message("----")
+  }
 
-                        return(NULL)
-                        }
-                     , mc.cores       = nproc
-                     , mc.preschedule = FALSE
-                     )
-  invisible(gc())
-  end_time  <- Sys.time()
-  diff_time <- end_time - begin_time
-  message(paste0("Completed! ( ", round(as.numeric(diff_time), 2), " ", attr(diff_time, "units"), " )"))
+  if(what == "read"){
+    distmat <- bigstatsr::FBM(nrow          = size
+                              , ncol        = size
+                              , type        = type
+                              , backingfile = file
+                              , create_bk   = FALSE
+                              )
+  }
 
   return(structure(list(fbm = distmat), class = "bigdist"))
 }
