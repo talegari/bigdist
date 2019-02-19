@@ -4,31 +4,85 @@
 #'   as file-backed matrix(FBM) using \pkg{bigstatsr} package or connects
 #'   existing FBM backup file on disk.
 #' @param mat Numeric matrix. When missing, attempts to connect to existing
-#'   backup file.
-#' @param file Name of the backing file to be created or an existing backup
-#'   file. Do not include trailing ".bk". See details for the backup file
+#'   backup file. See 'file' argument.
+#' @param file (string) Name of the backing file to be created or an existing
+#'   backup file. Do not include trailing ".bk". See details for the backup file
 #'   format.
-#' @param method See method argument of \code{\link[proxy]{dist}}. This ignored
-#'   when mat is missing.
-#' @param type Storage type of FBM. See \code{\link[bigstatsr]{FBM}}. This
-#'   ignored when mat is missing.
-#' @param nproc Number of parallel processes via forking. See details. This
-#'   ignored when mat is missing.
+#' @param method (string or function) See method argument of
+#'   \code{\link[proxy]{dist}}. This ignored when mat is missing.
+#' @param type (string, default: 'float') Storage type of FBM. See
+#'   \code{\link[bigstatsr]{FBM}}. This ignored when mat is missing.
+#' @param nproc (positive integer, default: 1) Number of parallel processes via
+#'   forking. See details. This ignored when mat is missing.
 #' @return An object of class 'bigdist'.
 #' @details bigdist class is a list where the key 'fbm' holds the FBM
 #'   connection. The filename format is of the form <somename>_<size>_<type>.bk
-#'   where size is the number of observations
+#'   where size is the number of observations and type is the data type like
+#'   'double', 'float'.
+#'
+#'   \pkg{bigstatsr} package stores matrices on disk and allows efficient
+#'   computation on them. The \pkg{disto} provides a unified frontend to read
+#'   parts of distance matrices and apply functions over rows/columns. For
+#'   efficient operations, write C++ functions to talk to \pkg{bigstatsr}'s
+#'   \code{\link[bigstatsr]{FBM}}.
 #' @examples
+#' # basics of 'bigdist'
+#' # create a random matrix
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e4), ncol = 10)
-#' temp <- bigdist(mat = amat, file = "~/somefile")
+#' td   <- tempdir()
+#' dir.create(td)
+#'
+#' # create a bigdist object with FBM (file-backed matrix) on disk
+#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
 #' temp
+#' temp$fbm$backingfile
 #' temp$fbm[1, 2]
 #'
-#' temp2 <- bigdist(file = "~/somefile_1000_float")
+#' # connect to FBM on disk as a bigdist object
+#' temp2 <- bigdist(file = file.path(td, "tempfile_1000_float"))
 #' temp2
 #' temp2$fbm[1,2]
-#' unlink("~/somefile_1000_float.bk")
+#'
+#' # check the size of bigdist object
+#' bigdist_size(temp)
+#'
+#' # bigdist accessors
+#'
+#' # ij
+#' bigdist_extract(temp, 1, 2)
+#' bigdist_extract(temp, 1:2, 3:4)
+#' bigdist_extract(temp, 1:2, 3:4, product = "inner")
+#' dim(bigdist_extract(temp, 1:2,))
+#' dim(bigdist_extract(temp, , 3:4))
+#'
+#' # k (lower trianle indexing)
+#' bigdist_extract(temp, k = 3:7)
+#'
+#' # bigdist replacers
+#'
+#' # ij
+#' bigdist_replace(temp, 1, 2, 10)
+#' bigdist_extract(temp, 1, 2)
+#' bigdist_replace(temp, 1:2, 3:4, 11:12)
+#' bigdist_extract(temp, 1:2, 3:4, product = "inner")
+#'
+#' # k (lower trianle indexing)
+#' bigdist_replace(temp, k = 3:7, value = 51:55)
+#' bigdist_extract(temp, k = 3:7)
+#'
+#' # subset a bigdist object
+#' temp_subset <- bigdist_subset(temp, index = 201:300, file = file.path(td, "tempfile2"))
+#' temp_subset
+#' temp_subset$fbm$backingfile
+#'
+#' # convert a dist object(in memory) to a bigdist object
+#' temp3 <- as_bigdist(dist(mtcars), file = file.path(td, "tempfile3"))
+#' temp3
+#'
+#' # remove the FBM from disk
+#' unlink(td, recursive = TRUE)
+#'
 #' @export
 bigdist <- function(mat
                     , file
@@ -41,7 +95,7 @@ bigdist <- function(mat
 
   if(what == "write"){
     assertthat::assert_that(is.matrix(mat) && is.numeric(mat))
-    file <- suppressWarnings(normalizePath(file))
+    file <- suppressWarnings(normalizePath(file, mustWork = FALSE))
     assertthat::assert_that(!file.exists(paste0(file, ".bk")))
     assertthat::assert_that(assertthat::is.writeable(dirname(file)))
     assertthat::assert_that(assertthat::is.string(type))

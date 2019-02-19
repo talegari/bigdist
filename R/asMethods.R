@@ -11,7 +11,7 @@ as_bigdist <- function(x, file, nproc, ...){
   UseMethod("as_bigdist", x)
 }
 
-
+#' @export
 as_bigdist.dist <- function(x, file, nproc = 1, ...){
 
   file <- suppressWarnings(normalizePath(file))
