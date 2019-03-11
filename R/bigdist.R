@@ -140,8 +140,8 @@ bigdist <- function(mat
     pbmcapply::pbmclapply(1:(size - 1)
                          , function(i){
                            dists                    <- distIndex(i, mat, method, size)
-                           distmat[i, (i + 1):size] <- dists
-                           distmat[(i + 1):size, i] <- dists
+                           suppressWarnings(distmat[i, (i + 1):size] <- dists)
+                           suppressWarnings(distmat[(i + 1):size, i] <- dists)
 
                            return(NULL)
                          }
