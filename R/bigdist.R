@@ -178,11 +178,8 @@ bigdist <- function(mat
 #'   number of rows
 distIndex <- function(i, mat, method, size){
 
-  x <- matrix(mat[i, ], nrow = 1)
-  y <- mat[(i + 1):size, ]
-  if(is.null(dim(y))){
-    y <- matrix(y, nrow = 1)
-  }
+  x <- mat[i, , drop = FALSE]
+  y <- mat[(i + 1):size, , drop = FALSE]
 
   distances      <- unclass(proxy::dist(x, y, method))
   dim(distances) <- NULL
