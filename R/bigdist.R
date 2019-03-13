@@ -31,7 +31,7 @@
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e4), ncol = 10)
 #' td   <- tempdir()
-#' dir.create(td)
+#' if(!dir.exists(td)) dir.create(td)
 #'
 #' # create a bigdist object with FBM (file-backed matrix) on disk
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))

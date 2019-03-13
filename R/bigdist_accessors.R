@@ -3,6 +3,15 @@
 #' @description Size of bigdist
 #' @param x Object of class 'bigdist'
 #' @export
+#' @examples
+#' set.seed(1)
+#' amat <- matrix(rnorm(1e4), ncol = 10)
+#' td   <- tempdir()
+#' if(!dir.exists(td)) dir.create(td)
+#'
+#' # create a bigdist object with FBM (file-backed matrix) on disk
+#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' temp
 bigdist_size <- function(x){
   assertthat::assert_that(inherits(x, "bigdist"))
   x[["fbm"]][["ncol"]]
