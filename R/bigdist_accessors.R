@@ -5,13 +5,12 @@
 #' @export
 #' @examples
 #' set.seed(1)
-#' amat <- matrix(rnorm(1e4), ncol = 10)
+#' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
-#' if(!dir.exists(td)) dir.create(td)
-#'
 #' # create a bigdist object with FBM (file-backed matrix) on disk
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
-#' temp
+#' bigdist_size(temp)
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 bigdist_size <- function(x){
   assertthat::assert_that(inherits(x, "bigdist"))
   x[["fbm"]][["ncol"]]
@@ -32,6 +31,17 @@ bigdist_size <- function(x){
 #'   missing. In ij-mode, k should be missing and both i and j are optional. If
 #'   i or j are missing, they are interpreted as all values of i or j (similar
 #'   to matrix or dataframe subsetting).
+#' @examples
+#' set.seed(1)
+#' amat <- matrix(rnorm(1e3), ncol = 10)
+#' td   <- tempdir()
+#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' bigdist_extract(temp, 1, 2)
+#' bigdist_extract(temp, 1:2, 3:4)
+#' bigdist_extract(temp, 1:2, 3:4, product = "inner")
+#' dim(bigdist_extract(temp, 1:2,))
+#' dim(bigdist_extract(temp, , 3:4))
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 bigdist_extract <- function(x, i, j, k, product = "outer"){
 
@@ -113,6 +123,16 @@ bigdist_extract <- function(x, i, j, k, product = "outer"){
 #'   }
 #'
 #' @return bigdist object
+#' @examples
+#' set.seed(1)
+#' amat <- matrix(rnorm(1e3), ncol = 10)
+#' td   <- tempdir()
+#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' bigdist_replace(temp, 1, 2, 10)
+#' bigdist_extract(temp, 1, 2)
+#' bigdist_replace(temp, 1:2, 3:4, 11:12)
+#' bigdist_extract(temp, 1:2, 3:4, product = "inner")
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 bigdist_replace <- function(x, i, j, value, k){
 
@@ -183,6 +203,15 @@ bigdist_replace <- function(x, i, j, value, k){
 #' @details The filename format is of the form <somename>_<size>_<type>.bk where
 #'   size is the number of observations and type is the data type like 'double',
 #'   'float'.
+#' @examples
+#' set.seed(1)
+#' amat <- matrix(rnorm(1e3), ncol = 10)
+#' td   <- tempdir()
+#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' temp_subset <- bigdist_subset(temp, index = 21:30, file = file.path(td, "tempfile2"))
+#' temp_subset
+#' temp_subset$fbm$backingfile
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 bigdist_subset <- function(x, index, file){
 

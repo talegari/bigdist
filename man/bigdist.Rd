@@ -47,9 +47,8 @@ bigdist class is a list where the key 'fbm' holds the FBM
 # basics of 'bigdist'
 # create a random matrix
 set.seed(1)
-amat <- matrix(rnorm(1e4), ncol = 10)
+amat <- matrix(rnorm(1e3), ncol = 10)
 td   <- tempdir()
-dir.create(td)
 
 # create a bigdist object with FBM (file-backed matrix) on disk
 temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
@@ -58,7 +57,7 @@ temp$fbm$backingfile
 temp$fbm[1, 2]
 
 # connect to FBM on disk as a bigdist object
-temp2 <- bigdist(file = file.path(td, "tempfile_1000_float"))
+temp2 <- bigdist(file = file.path(td, "tempfile_100_float"))
 temp2
 temp2$fbm[1,2]
 
@@ -90,7 +89,7 @@ bigdist_replace(temp, k = 3:7, value = 51:55)
 bigdist_extract(temp, k = 3:7)
 
 # subset a bigdist object
-temp_subset <- bigdist_subset(temp, index = 201:300, file = file.path(td, "tempfile2"))
+temp_subset <- bigdist_subset(temp, index = 21:30, file = file.path(td, "tempfile2"))
 temp_subset
 temp_subset$fbm$backingfile
 
@@ -99,6 +98,5 @@ temp3 <- as_bigdist(dist(mtcars), file = file.path(td, "tempfile3"))
 temp3
 
 # remove the FBM from disk
-unlink(td, recursive = TRUE)
-
+file.remove(file.path(td, grep(".*\\\\.bk$", list.files(td), value = TRUE)))
 }

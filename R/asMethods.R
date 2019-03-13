@@ -6,6 +6,15 @@
 #' @param nproc Number of parallel processes via forking
 #' @param ... additional arguments
 #' @return An object of class 'bigdist'
+#' @examples
+#' set.seed(1)
+#' amat <- matrix(rnorm(1e3), ncol = 10)
+#' td   <- tempdir()
+#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' temp
+#' temp3 <- as_bigdist(dist(mtcars), file = file.path(td, "tempfile3"))
+#' temp3
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 as_bigdist <- function(x, file, nproc, ...){
   UseMethod("as_bigdist", x)
@@ -24,10 +33,10 @@ as_bigdist.dist <- function(x, file, nproc = 1, ...){
   distmat <- bigstatsr::FBM(nrow           = size
                              , ncol        = size
                              , type        = "double"
-                             , backingfile = paste(file, size, sep = "_")
+                             , backingfile = paste(file, size, "double", sep = "_")
                              , create_bk   = TRUE
                              )
-  filename <- paste0(paste(file, size, sep = "_"), ".bk")
+  filename <- paste0(paste(file, size, "double", sep = "_"), ".bk")
   message("----")
   message(paste0("Location: ", filename))
   message(paste0("Size on disk: "
@@ -38,10 +47,14 @@ as_bigdist.dist <- function(x, file, nproc = 1, ...){
 
   # iterate over columns of the dist
   assignValues <- function(i){
-    values                   <- x[seq.int(colStartIndex(i, size), length.out = size - i)]
-    distmat[(i + 1):size, i] <- values
-    distmat[i, (i + 1):size] <- values
 
+    values <- x[seq.int(colStartIndex(i, size), length.out = size - i)]
+    bigstatsr::without_downcast_warning(
+      distmat[(i + 1):size, i] <- values
+    )
+    bigstatsr::without_downcast_warning(
+      distmat[i, (i + 1):size] <- values
+    )
     return(NULL)
   }
 

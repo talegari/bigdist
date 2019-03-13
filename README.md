@@ -1,3 +1,5 @@
+[![Travis build status](https://travis-ci.org/talegari/bigdist.svg?branch=master)](https://travis-ci.org/talegari/bigdist)
+
 bigdist
 =======
 
@@ -26,12 +28,12 @@ set.seed(1)
 amat <- matrix(rnorm(1e4), ncol = 10)
 td   <- tempdir()
 dir.create(td)
-#> Warning in dir.create(td): '/tmp/Rtmp7lp8w6' already exists
+#> Warning in dir.create(td): '/tmp/Rtmpb4VkbR' already exists
 
 # create a bigdist object with FBM(fle-baked matrix) on disk
 temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
 #> ----
-#> Location: /tmp/Rtmp7lp8w6/tempfile_1000_float.bk
+#> Location: /tmp/Rtmpb4VkbR/tempfile_1000_float.bk
 #> Size on disk: 0 GB
 #> Computing distances ...
 #> Completed!
@@ -43,7 +45,7 @@ temp
 #> attr(,"class")
 #> [1] "bigdist"
 temp$fbm$backingfile
-#> [1] "/tmp/Rtmp7lp8w6/tempfile_1000_float.bk"
+#> [1] "/tmp/Rtmpb4VkbR/tempfile_1000_float.bk"
 temp$fbm[1, 2]
 #> [1] 4.093935
 
@@ -123,12 +125,12 @@ temp_subset
 #> attr(,"class")
 #> [1] "bigdist"
 temp_subset$fbm$backingfile
-#> [1] "/tmp/Rtmp7lp8w6/tempfile2_100_float.bk"
+#> [1] "/tmp/Rtmpb4VkbR/tempfile2_100_float.bk"
 
 # convert a dist object(in memory) to a bigdist object
 temp3 <- as_bigdist(dist(mtcars), file = file.path(td, "tempfile3"))
 #> ----
-#> Location: /tmp/Rtmp7lp8w6/tempfile3_32.bk
+#> Location: /tmp/Rtmpb4VkbR/tempfile3_32_double.bk
 #> Size on disk: 0 GB
 #> completed!
 #> ----

@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+[![Travis build status](https://travis-ci.org/talegari/bigdist.svg?branch=master)](https://travis-ci.org/talegari/bigdist)
+
 # bigdist
 
 bigdist package facilitates storing distance matrices on disk as 'file-backed matrix' (FBM) using [bigstatsr](https://cran.r-project.org/package=bigstatsr) package. The FBM stores a symmetric matrix. Each distance is stored as a 'float/double' approximately requiring 4 or 8 bytes. The resulting file size will approximately be 4 or 8 * size^2 where size is nrow/ncol of the data matrix. Working with bigdist object requires working knowledge of bigstatsr package.

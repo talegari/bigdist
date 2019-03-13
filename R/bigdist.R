@@ -29,9 +29,8 @@
 #' # basics of 'bigdist'
 #' # create a random matrix
 #' set.seed(1)
-#' amat <- matrix(rnorm(1e4), ncol = 10)
+#' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
-#' if(!dir.exists(td)) dir.create(td)
 #'
 #' # create a bigdist object with FBM (file-backed matrix) on disk
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
@@ -40,7 +39,7 @@
 #' temp$fbm[1, 2]
 #'
 #' # connect to FBM on disk as a bigdist object
-#' temp2 <- bigdist(file = file.path(td, "tempfile_1000_float"))
+#' temp2 <- bigdist(file = file.path(td, "tempfile_100_float"))
 #' temp2
 #' temp2$fbm[1,2]
 #'
@@ -72,7 +71,7 @@
 #' bigdist_extract(temp, k = 3:7)
 #'
 #' # subset a bigdist object
-#' temp_subset <- bigdist_subset(temp, index = 201:300, file = file.path(td, "tempfile2"))
+#' temp_subset <- bigdist_subset(temp, index = 21:30, file = file.path(td, "tempfile2"))
 #' temp_subset
 #' temp_subset$fbm$backingfile
 #'
@@ -81,8 +80,7 @@
 #' temp3
 #'
 #' # remove the FBM from disk
-#' unlink(td, recursive = TRUE)
-#'
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 bigdist <- function(mat
                     , file
@@ -96,7 +94,10 @@ bigdist <- function(mat
   if(what == "write"){
     assertthat::assert_that(is.matrix(mat) && is.numeric(mat))
     file <- suppressWarnings(normalizePath(file, mustWork = FALSE))
-    assertthat::assert_that(!file.exists(paste0(file, ".bk")))
+    assertthat::assert_that(
+      !file.exists(paste0(file, ".bk"))
+      , msg = "File already exists! Aborting without overwriting."
+      )
     assertthat::assert_that(assertthat::is.writeable(dirname(file)))
     assertthat::assert_that(assertthat::is.string(type))
     assertthat::assert_that(type %in% c("integer", "float", "double"))
@@ -104,7 +105,10 @@ bigdist <- function(mat
   }
 
   if(what == "read"){
-    assertthat::assert_that(file.exists(paste0(file, ".bk")))
+    assertthat::assert_that(
+      file.exists(paste0(file, ".bk"))
+      , msg = "Backup file does not exist"
+      )
     assertthat::assert_that(assertthat::is.readable(paste0(file, ".bk")))
 
     filenameSplit <- strsplit(file, "_")[[1]]
@@ -137,17 +141,22 @@ bigdist <- function(mat
     message("Computing distances ... ")
 
     # fill FBM in a loop
-    pbmcapply::pbmclapply(1:(size - 1)
-                         , function(i){
-                           dists                    <- distIndex(i, mat, method, size)
-                           suppressWarnings(distmat[i, (i + 1):size] <- dists)
-                           suppressWarnings(distmat[(i + 1):size, i] <- dists)
+    pbmcapply::pbmclapply(
+      1:(size - 1)
+      , function(i){
+          dists <- distIndex(i, mat, method, size)
+           bigstatsr::without_downcast_warning(
+             distmat[i, (i + 1):size] <- dists
+             )
+           bigstatsr::without_downcast_warning(
+             distmat[(i + 1):size, i] <- dists
+             )
 
-                           return(NULL)
-                         }
-                         , mc.cores       = nproc
-                         , mc.preschedule = FALSE
-                         )
+         return(NULL)
+       }
+      , mc.cores       = nproc
+      , mc.preschedule = FALSE
+      )
     invisible(gc())
     message("Completed!")
     message("----")

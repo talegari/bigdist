@@ -40,3 +40,14 @@ There are two modes to specify the positions:
 
   }
 }
+\examples{
+set.seed(1)
+amat <- matrix(rnorm(1e3), ncol = 10)
+td   <- tempdir()
+temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+bigdist_replace(temp, 1, 2, 10)
+bigdist_extract(temp, 1, 2)
+bigdist_replace(temp, 1:2, 3:4, 11:12)
+bigdist_extract(temp, 1:2, 3:4, product = "inner")
+file.remove(file.path(td, grep(".*\\\\.bk$", list.files(td), value = TRUE)))
+}
