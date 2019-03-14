@@ -26,6 +26,7 @@ The filename format is of the form <somename>_<size>_<type>.bk where
 set.seed(1)
 amat <- matrix(rnorm(1e3), ncol = 10)
 td   <- tempdir()
+file.remove(file.path(td, grep(".*\\\\.bk$", list.files(td), value = TRUE)))
 temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
 temp_subset <- bigdist_subset(temp, index = 21:30, file = file.path(td, "tempfile2"))
 temp_subset

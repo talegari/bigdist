@@ -32,6 +32,7 @@
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #'
 #' # create a bigdist object with FBM (file-backed matrix) on disk
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))

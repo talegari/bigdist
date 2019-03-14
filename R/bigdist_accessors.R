@@ -7,7 +7,7 @@
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
-#' # create a bigdist object with FBM (file-backed matrix) on disk
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
 #' bigdist_size(temp)
 #' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
@@ -35,6 +35,7 @@ bigdist_size <- function(x){
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
 #' bigdist_extract(temp, 1, 2)
 #' bigdist_extract(temp, 1:2, 3:4)
@@ -127,6 +128,7 @@ bigdist_extract <- function(x, i, j, k, product = "outer"){
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
 #' bigdist_replace(temp, 1, 2, 10)
 #' bigdist_extract(temp, 1, 2)
@@ -207,6 +209,7 @@ bigdist_replace <- function(x, i, j, value, k){
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
+#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
 #' temp_subset <- bigdist_subset(temp, index = 21:30, file = file.path(td, "tempfile2"))
 #' temp_subset
