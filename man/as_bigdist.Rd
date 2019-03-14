@@ -4,14 +4,12 @@
 \alias{as_bigdist}
 \title{Convert to bigdist}
 \usage{
-as_bigdist(x, file, nproc, ...)
+as_bigdist(x, file, ...)
 }
 \arguments{
 \item{x}{Object coercible to bigdist}
 
 \item{file}{File to write the 'bigdist' matrix}
-
-\item{nproc}{Number of parallel processes via forking}
 
 \item{...}{additional arguments}
 }
@@ -20,6 +18,10 @@ An object of class 'bigdist'
 }
 \description{
 Generic to convert an object of class 'bigdist'
+}
+\details{
+Writing distances to FBM can be parallelized by setting up a future
+  backend
 }
 \examples{
 set.seed(1)

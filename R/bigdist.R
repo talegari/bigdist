@@ -12,8 +12,6 @@
 #'   \code{\link[proxy]{dist}}. This ignored when mat is missing.
 #' @param type (string, default: 'float') Storage type of FBM. See
 #'   \code{\link[bigstatsr]{FBM}}. This ignored when mat is missing.
-#' @param nproc (positive integer, default: 1) Number of parallel processes via
-#'   forking. See details. This ignored when mat is missing.
 #' @return An object of class 'bigdist'.
 #' @details bigdist class is a list where the key 'fbm' holds the FBM
 #'   connection. The filename format is of the form <somename>_<size>_<type>.bk
@@ -25,6 +23,9 @@
 #'   parts of distance matrices and apply functions over rows/columns. For
 #'   efficient operations, write C++ functions to talk to \pkg{bigstatsr}'s
 #'   \code{\link[bigstatsr]{FBM}}.
+#'
+#'   The distance computation and writing to FBM may be parallelized by setting
+#'   a future backend
 #' @examples
 #' # basics of 'bigdist'
 #' # create a random matrix
@@ -86,7 +87,6 @@ bigdist <- function(mat
                     , file
                     , method = "euclidean"
                     , type   = "float"
-                    , nproc  = 1
                     ){
   # assertions ----
   what <- ifelse(missing(mat), "read", "write")
@@ -101,7 +101,6 @@ bigdist <- function(mat
     assertthat::assert_that(assertthat::is.writeable(dirname(file)))
     assertthat::assert_that(assertthat::is.string(type))
     assertthat::assert_that(type %in% c("integer", "float", "double"))
-    assertthat::assert_that(assertthat::is.count(nproc))
   }
 
   if(what == "read"){
@@ -141,7 +140,7 @@ bigdist <- function(mat
     message("Computing distances ... ")
 
     # fill FBM in a loop
-    pbmcapply::pbmclapply(
+    furrr::future_map(
       1:(size - 1)
       , function(i){
           dists <- distIndex(i, mat, method, size)
@@ -154,8 +153,7 @@ bigdist <- function(mat
 
          return(NULL)
        }
-      , mc.cores       = nproc
-      , mc.preschedule = FALSE
+      , .progress = TRUE
       )
     invisible(gc())
     message("Completed!")

@@ -4,7 +4,7 @@
 \alias{bigdist}
 \title{Read or Create a distance matrix on disk}
 \usage{
-bigdist(mat, file, method = "euclidean", type = "float", nproc = 1)
+bigdist(mat, file, method = "euclidean", type = "float")
 }
 \arguments{
 \item{mat}{Numeric matrix. When missing, attempts to connect to existing
@@ -19,9 +19,6 @@ format.}
 
 \item{type}{(string, default: 'float') Storage type of FBM. See
 \code{\link[bigstatsr]{FBM}}. This ignored when mat is missing.}
-
-\item{nproc}{(positive integer, default: 1) Number of parallel processes via
-forking. See details. This ignored when mat is missing.}
 }
 \value{
 An object of class 'bigdist'.
@@ -42,6 +39,9 @@ bigdist class is a list where the key 'fbm' holds the FBM
   parts of distance matrices and apply functions over rows/columns. For
   efficient operations, write C++ functions to talk to \pkg{bigstatsr}'s
   \code{\link[bigstatsr]{FBM}}.
+
+  The distance computation and writing to FBM may be parallelized by setting
+  a future backend
 }
 \examples{
 # basics of 'bigdist'
