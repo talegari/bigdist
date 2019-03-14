@@ -1,8 +1,11 @@
 Package: bigdist
 Type: Package
 Title: Store Distance Matrices on Disk
-Version: 0.1.1
-Authors@R: person("Komala Sheshachala", "Srikanth", email = "sri.teach@gmail.com", role = c("aut", "cre"))
+Version: 0.1.2
+Authors@R: c(
+  person("Komala Sheshachala", "Srikanth", email = "sri.teach@gmail.com", role = c("aut", "cre")),
+  person("Florian", "Privé", email = "florian.prive.21@gmail.com", role = c("ctb"))
+  )
 Description: Provides utilities to compute, store and access distance matrices on disk as file-backed matrices provided by the 'bigstatsr' package. File-backed distance matrices are stored as a symmetric matrix to facilitate out-of-memory operations on file-backed matrix while the in-memory 'dist' object stores only the lower diagonal elements. The 'disto' package provides an unified interface to work with in-memory and disk-based distance matrices.
 URL: https://github.com/talegari/bigdist
 BugReports: https://github.com/talegari/bigdist/issues

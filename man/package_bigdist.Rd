@@ -36,4 +36,9 @@ Useful links:
 \author{
 \strong{Maintainer}: Komala Sheshachala Srikanth \email{sri.teach@gmail.com}
 
+Other contributors:
+\itemize{
+  \item Florian Privé \email{florian.prive.21@gmail.com} [contributor]
+}
+
 }
