@@ -7,6 +7,9 @@ is_integerish <- getFromNamespace(x = "is.integerish", ns = "assertthat")
 #' @param j column index
 #' @param size value of size attribute of the dist object
 #' @return k index
+#' @examples
+#' dist_ij_k_(1, 3, 10)
+#' @export
 dist_ij_k_ <- compiler::cmpfun(
   function(i, j, size){
 
@@ -32,6 +35,9 @@ dist_ij_k_ <- compiler::cmpfun(
 #' @param j column indexes
 #' @param size value of size attribute of the dist object
 #' @return k indexes
+#' @examples
+#' dist_ij_k(1:3, 4:6, 10)
+#' @export
 dist_ij_k <- compiler::cmpfun(
   Vectorize(dist_ij_k_, vectorize.args = c("i", "j"))
   , options = list(optimize = 3)
@@ -43,6 +49,9 @@ dist_ij_k <- compiler::cmpfun(
 #' @param k kth index
 #' @param size value of size attribute of the dist object
 #' @return ij index as a length two integer vector
+#' @examples
+#' dist_k_ij_(4, 10)
+#' @export
 dist_k_ij_ <- compiler::cmpfun(function(k, size){
   sums <- cumsum(seq(size - 1, 1, -1))
   j    <- Position(function(x) x >= k, sums)
@@ -57,6 +66,9 @@ dist_k_ij_ <- compiler::cmpfun(function(k, size){
 #' @param k kth indexes
 #' @param size value of size attribute of the dist object
 #' @return ij indexes as 2*n matrix where n is length of k vector
+#' @examples
+#' dist_k_ij(4:6, 10:12)
+#' @export
 dist_k_ij <- compiler::cmpfun(
   Vectorize(dist_k_ij_, vectorize.args = c("k", "size"))
   , options = list(optimize = 3)

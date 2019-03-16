@@ -7,10 +7,8 @@
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
-#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' temp <- bigdist(mat = amat, file = file.path(td, "temp_ex5"))
 #' bigdist_size(temp)
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 bigdist_size <- function(x){
   assertthat::assert_that(inherits(x, "bigdist"))
   x[["fbm"]][["ncol"]]
@@ -35,14 +33,12 @@ bigdist_size <- function(x){
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
-#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' temp <- bigdist(mat = amat, file = file.path(td, "temp_ex6"))
 #' bigdist_extract(temp, 1, 2)
 #' bigdist_extract(temp, 1:2, 3:4)
 #' bigdist_extract(temp, 1:2, 3:4, product = "inner")
 #' dim(bigdist_extract(temp, 1:2,))
 #' dim(bigdist_extract(temp, , 3:4))
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 bigdist_extract <- function(x, i, j, k, product = "outer"){
 
@@ -128,13 +124,11 @@ bigdist_extract <- function(x, i, j, k, product = "outer"){
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
-#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+#' temp <- bigdist(mat = amat, file = file.path(td, "temp_ex7"))
 #' bigdist_replace(temp, 1, 2, 10)
 #' bigdist_extract(temp, 1, 2)
 #' bigdist_replace(temp, 1:2, 3:4, 11:12)
 #' bigdist_extract(temp, 1:2, 3:4, product = "inner")
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 bigdist_replace <- function(x, i, j, value, k){
 
@@ -209,12 +203,10 @@ bigdist_replace <- function(x, i, j, value, k){
 #' set.seed(1)
 #' amat <- matrix(rnorm(1e3), ncol = 10)
 #' td   <- tempdir()
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
-#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
-#' temp_subset <- bigdist_subset(temp, index = 21:30, file = file.path(td, "tempfile2"))
+#' temp <- bigdist(mat = amat, file = file.path(td, "temp_ex8"))
+#' temp_subset <- bigdist_subset(temp, index = 21:30, file = file.path(td, "temp_ex9"))
 #' temp_subset
 #' temp_subset$fbm$backingfile
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 bigdist_subset <- function(x, index, file){
 

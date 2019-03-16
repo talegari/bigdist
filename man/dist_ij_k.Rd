@@ -19,3 +19,6 @@ k indexes
 \description{
 Convert ij indexes to k indexes for a dist object
 }
+\examples{
+dist_ij_k(1:3, 4:6, 10)
+}

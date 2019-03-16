@@ -17,3 +17,6 @@ ij indexes as 2*n matrix where n is length of k vector
 \description{
 Convert kth indexes to ij indexes of a dist object
 }
+\examples{
+dist_k_ij(4:6, 10:12)
+}

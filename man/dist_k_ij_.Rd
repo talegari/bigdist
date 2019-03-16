@@ -17,3 +17,6 @@ ij index as a length two integer vector
 \description{
 Convert kth index to ij index of a dist object
 }
+\examples{
+dist_k_ij_(4, 10)
+}

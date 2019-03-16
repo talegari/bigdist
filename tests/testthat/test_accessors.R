@@ -4,8 +4,7 @@ library("bigdist")
 set.seed(1)
 amat <- matrix(rnorm(1e3), ncol = 10)
 td   <- tempdir()
-file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
-temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+temp <- bigdist(mat = amat, file = file.path(td, "temp_ex10"))
 
 test_that("accessors should always return a matrix", {
   testthat::expect_is(bigdist_extract(temp, 1, 2)     , "matrix")
@@ -29,4 +28,3 @@ test_that("accessors should handle empty ij", {
                          )
 })
 
-file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))

@@ -4,8 +4,7 @@ library("bigdist")
 set.seed(1)
 amat <- matrix(rnorm(1e3), ncol = 10)
 td   <- tempdir()
-file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
-temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+temp <- bigdist(mat = amat, file = file.path(td, "temp_ex11"))
 
 test_that("should always write in inner form", {
   # returns bigdist object after replacement
@@ -19,5 +18,3 @@ test_that("should always write in inner form", {
   # replacement (length mismatch in value)
   testthat::expect_error(bigdist_replace(temp, 1:2, 3:4, 102:104))
 })
-
-file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))

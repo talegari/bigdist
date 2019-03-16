@@ -34,12 +34,10 @@ In k-mode, both i and j should be missing and k should not be
 set.seed(1)
 amat <- matrix(rnorm(1e3), ncol = 10)
 td   <- tempdir()
-file.remove(file.path(td, grep(".*\\\\.bk$", list.files(td), value = TRUE)))
-temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+temp <- bigdist(mat = amat, file = file.path(td, "temp_ex6"))
 bigdist_extract(temp, 1, 2)
 bigdist_extract(temp, 1:2, 3:4)
 bigdist_extract(temp, 1:2, 3:4, product = "inner")
 dim(bigdist_extract(temp, 1:2,))
 dim(bigdist_extract(temp, , 3:4))
-file.remove(file.path(td, grep(".*\\\\.bk$", list.files(td), value = TRUE)))
 }

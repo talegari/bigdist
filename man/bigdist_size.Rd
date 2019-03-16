@@ -16,8 +16,6 @@ Size of bigdist
 set.seed(1)
 amat <- matrix(rnorm(1e3), ncol = 10)
 td   <- tempdir()
-file.remove(file.path(td, grep(".*\\\\.bk$", list.files(td), value = TRUE)))
-temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
+temp <- bigdist(mat = amat, file = file.path(td, "temp_ex5"))
 bigdist_size(temp)
-file.remove(file.path(td, grep(".*\\\\.bk$", list.files(td), value = TRUE)))
 }

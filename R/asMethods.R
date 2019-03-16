@@ -8,15 +8,8 @@
 #' @details Writing distances to FBM can be parallelized by setting up a future
 #'   backend
 #' @examples
-#' set.seed(1)
-#' amat <- matrix(rnorm(1e3), ncol = 10)
-#' td   <- tempdir()
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
-#' temp <- bigdist(mat = amat, file = file.path(td, "tempfile"))
-#' temp
-#' temp3 <- as_bigdist(dist(mtcars), file = file.path(td, "tempfile3"))
+#' temp3 <- as_bigdist(dist(mtcars), file = file.path(tempdir(), "temp_ex4"))
 #' temp3
-#' file.remove(file.path(td, grep(".*\\.bk$", list.files(td), value = TRUE)))
 #' @export
 as_bigdist <- function(x, file, ...){
   UseMethod("as_bigdist", x)
@@ -73,6 +66,16 @@ as_bigdist.dist <- function(x, file, ...){
   return(structure(list(fbm = distmat), class = "bigdist"))
 }
 
+#' @name colStartIndex
+#' @title Get the column start index
+#' @description Get the index of the dist object corresponding to some column
+#'   start in the symmetric form of the distance matrix
+#' @param i Column number
+#' @param size Size of the dist object
+#' @return An index of dist object
+#' @examples
+#' colStartIndex(2, 10)
+#' @export
 colStartIndex <- compiler::cmpfun(
   function(i, size){
     as.integer(((i - 1) * size) - ((i - 1) * i/2) + 1L)
