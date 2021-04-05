@@ -217,7 +217,7 @@ bigdist_subset <- function(x, index, file){
   type  <- names(x[["fbm"]][["type"]])
 
   assertthat::assert_that(is_integerish(index) && all(index) > 0)
-  assertthat::assert_that(max(index) < sz)
+  assertthat::assert_that(max(index) <= sz)
 
   filename <- paste0(paste(file, length(index), type, sep = "_"), ".bk")
 
